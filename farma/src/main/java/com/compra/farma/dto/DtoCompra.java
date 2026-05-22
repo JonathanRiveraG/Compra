@@ -1,12 +1,12 @@
 package com.compra.farma.dto;
 
 import java.math.BigDecimal;
+import com.compra.farma.dto.DtoFactura;
 
 import jakarta.validation.constraints.*;
 
 public record DtoCompra(
 
-    @NotNull(message = "El id de orden de compra no debe ser nulo")
     @Positive(message = "El id de orden de compra debe ser positivo")
     Long idOrdenCompra,
 
@@ -25,7 +25,9 @@ public record DtoCompra(
     @NotNull(message = "El total de compra es obligatoria")
     @PositiveOrZero(message = "El total de compra debe ser mayor o igual a 0")
     @Digits(integer = 10, fraction = 2, message = "El total de la compra no tiene un formato valido")
-    BigDecimal totalCompra
+    BigDecimal totalCompra,
+
+    DtoFactura factura
 
 ){}
 

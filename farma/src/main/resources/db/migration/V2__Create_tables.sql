@@ -1,11 +1,11 @@
-CREATE TABLE factura (
+CREATE TABLE compras.factura (
     id_factura BIGSERIAL PRIMARY KEY,
     numero_factura VARCHAR(50) NOT NULL UNIQUE,
     fecha_emision DATE NOT NULL,
     total_factura DECIMAL(10, 2) NOT NULL
 );
 
-CREATE TABLE detalle_factura (
+CREATE TABLE compras.detalle_factura (
     id_detalle BIGSERIAL PRIMARY KEY,
     id_factura BIGINT NOT NULL,
     sku BIGINT NOT NULL,

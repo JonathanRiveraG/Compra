@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "detalle_factura")
+@Table(name = "detalle_factura", schema = "public")
 
 public class ModeloDetalleFactura {
 

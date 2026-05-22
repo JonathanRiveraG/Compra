@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "compra")
+@Table(name = "compras", schema = "compras")
 
 public class ModeloCompra {
 
@@ -40,5 +40,9 @@ public class ModeloCompra {
     @Digits(integer = 10, fraction = 2, message = "El total de la compra no tiene un formato válido")
     @Column(nullable = false)
     private BigDecimal totalCompra;
+    
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_factura")
+    private ModeloFactura factura;
 
 }
