@@ -3,6 +3,8 @@ package com.compra.farma.service;
 import com.compra.farma.exception.CompraNoEncontradaException;
 import com.compra.farma.ProveedorClient; 
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value; 
+import org.springframework.web.reactive.function.client.WebClient; 
 import com.compra.farma.dto.DtoCompra;
 import com.compra.farma.dto.CompraMapper;
 import com.compra.farma.model.ModeloCompra;
@@ -15,18 +17,23 @@ public class ServicioCompra {
 
     private final RepositorioCompra repo;
     private final CompraMapper mapper;  
-    private final ProveedorClient proveedorClient; // <-- 1. Declaramos el cliente Feign
+    private final ProveedorClient proveedorClient; 
+    private final WebClient.Builder webClientBuilder; 
 
-    // 2. Lo agregamos al constructor para mantener tu excelente práctica de inyección
-    public ServicioCompra(RepositorioCompra repo, CompraMapper mapper, ProveedorClient proveedorClient) {
+    @Value("${microservicio.lote.url}")
+    private String loteUrl;
+
+    public ServicioCompra(RepositorioCompra repo, CompraMapper mapper, ProveedorClient proveedorClient, WebClient.Builder webClientBuilder) {
         this.repo = repo;
         this.mapper = mapper;
         this.proveedorClient = proveedorClient;
+        this.webClientBuilder = webClientBuilder;
     }
 
     public DtoCompra crear(DtoCompra dto){
         ModeloCompra entidad = mapper.toEntity(dto);
         ModeloCompra guardado = repo.save(entidad);
+
         return mapper.toDTO(guardado);
     }
 
@@ -37,7 +44,6 @@ public class ServicioCompra {
     }
 
     public DtoCompra buscarPorId(Long id){
-        // 3. Modificamos este método para que busque la compra primero
         ModeloCompra compra = repo.findById(id)
                 .orElseThrow(() -> new CompraNoEncontradaException("Compra no encontrada: " + id));
                 
@@ -68,5 +74,21 @@ public class ServicioCompra {
             throw new CompraNoEncontradaException("Compra no encontrada: " + id);
         }
         repo.deleteById(id);
+    }
+
+    public Object enviarDatosALote(Object datosDelLote) {
+        WebClient webClient = webClientBuilder.baseUrl(loteUrl).build();
+        
+        try {
+            return webClient.post()
+                    .uri("/api/inventario/compras") 
+                    .bodyValue(datosDelLote) 
+                    .retrieve()
+                    .bodyToMono(Object.class) 
+                    .block();
+        } catch (Exception e) {
+            System.err.println("Error al conectar con el microservicio Gestion/Lote: " + e.getMessage());
+            throw new RuntimeException("No se pudo registrar el lote en el ecosistema.");
+        }
     }
 }
